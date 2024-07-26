@@ -1,22 +1,23 @@
 // 引入套件
-import { Schema, model, ObjectId } from 'mongoose'
+import { Schema, model, ObjectId, Error } from 'mongoose'
 import validator from 'validator'
 import bcrypt from 'bcrypt'
-import UserRole from '../enums/UserRole.js'
 
-// const cartSchema = Schema({
-//   p_id: {
+// 我的收藏
+// const saveSchema = Schema({
+//   s_id: {
 //     type: ObjectId,
-//     ref: 'products',
-//     required: [true, '使用者購物車商品必填']
-//   },
-//   quantity: {
-//     type: Number,
-//     required: [true, '使用者購物車商品數量必填'],
-//     min: [1, '使用者購物車商品數量不符']
+//     ref: 'songs',
+//     required: [true, '收藏必填']
 //   }
 // })
 
+// 我的鼓譜------------------------------------
+// 發布
+
+// 草稿
+
+// 使用者---------------------------------------
 const schema = new Schema({
   // 使用者帳號
   account: {
@@ -24,7 +25,7 @@ const schema = new Schema({
     required: [true, '使用者帳號必填'],
     minlength: [4, '使用者帳號長度不符'],
     maxlength: [20, '使用者帳號長度不符'],
-    unique: true,
+    unique: true, // 不可重複
     validate: {
       validator (value) {
         return validator.isAlphanumeric(value)
@@ -50,46 +51,37 @@ const schema = new Schema({
     }
   },
   tokens: {
-    type: [String]
-  },
+    type: [String] // 文字陣列
+  }
+  // 購物車不需要，待改成收藏等等項目*************
   // cart: {
   //   type: [cartSchema]
   // },
-  role: {
-    // 資料型態為數字，預設值為檔案UserRole裡的USER
-    type: Number,
-    default: UserRole.USER
-  }
 }, {
+  // 紀錄使用者建立的時間
   timestamps: true,
+  // 關閉資料改了幾次的紀錄
   versionKey: false
 })
 
-// schema.pre() 是 Mongoose 中的一個方法，用於在某些操作（如保存、刪除、更新等）發生之前執行預處理邏輯
-// save表示在被保存之前執行
+// 在被保存至資料庫之前要執行的動作-----------------------
+// 密碼加密
 schema.pre('save', function (next) {
   const user = this
+  // 如果有修改密碼
   if (user.isModified('password')) {
+    // 檢查長度是否超出限制範圍
     if (user.password.length < 4 || user.password.length > 20) {
       const error = new Error.ValidationError()
       error.addError('password', new Error.ValidatorError({ message: '使用者密碼長度不符' }))
       next(error) // 如果有錯誤，將錯誤傳遞給 next()
       return
     } else {
+      // 加密
       user.password = bcrypt.hashSync(user.password, 10)
     }
   }
-  /* 在 Mongoose 中，next() 函數主要用於中間件（.pre() 和 .post()）中
-  中間件允許在特定的操作（如保存、刪除、更新等）之前或之後插入自定義邏輯。next() 函數在中間件中用來將控制權傳遞給下一個中間件或最終的操作。 */
   next()
 })
-
-// schema.virtual('cartQuantity').get(function () {
-//   const user = this // 現在這筆的使用者資料
-//   // 購物車累加把所有數量加起來
-//   return user.cart.reduce((total, current) => {
-//     return total + current.quantity
-//   }, 0)
-// })
 
 export default model('users', schema)
