@@ -2,17 +2,20 @@
 import 'dotenv/config'
 import express from 'express'
 import mongoose from 'mongoose'
-import cors from 'cors'
-import { StatusCodes } from 'http-status-codes'
+import cors from 'cors' // 連接前後端
+import { StatusCodes } from 'http-status-codes' // 狀態碼
 import mongoSanitize from 'express-mongo-sanitize'
 import rateLimit from 'express-rate-limit'
 
 // 引入檔案
 import routeUser from './routes/user.js'
+import routeSong from './routes/song.js'
 import './passport/passport.js'
 
+// 建立express伺服器
 const app = express()
 
+// 放第一個，若超出上限就不用處理進來的東西
 // 一段時間內操作太多次請求會被封ip
 // 套件express-rate-limit，參考網站 https://www.npmjs.com/package/express-rate-limit
 app.use(rateLimit({
@@ -23,7 +26,7 @@ app.use(rateLimit({
   statusCode: StatusCodes.TOO_MANY_REQUESTS, // 自訂狀態碼
   message: '太多請求', // 超過上限回應的東西
   // 超出限制時，要如何做後續處理，共四個參數可以用
-  // options為上面東西的設定值
+  // options為上面這些設定值
   handler (req, res, next, options) {
     res.status(options.statusCode).json({
       success: false,
@@ -38,11 +41,14 @@ app.use(cors({
   // origin = 請求的來源
   // callback(錯誤, 是否允許)
   origin (origin, callback) {
+    // undefined表示請求是從後端傳送過來，例如postman
     if (origin === undefined ||
       origin.includes('github.io') || origin.includes('localhost') || origin.includes('127.0.0.1')
     ) {
+      // 符合上面的話就讓它過
       callback(null, true)
     } else {
+      // 不符合的話不讓他過且回傳錯誤
       callback(new Error('CORS'), false)
     }
   }
@@ -52,6 +58,7 @@ app.use(cors({
 .use() 是 Express.js 中的一個方法，用於將中間件函數掛載到應用程序的路徑上。中間件函數是一組可以訪問請求對象（req）、響應對象（res）和應用程序的請求-響應循環中間的 next 中間件函數的函數。
 通過使用 .use()，可以將自定義中間件或內建中間件應用到應用程序的路徑上，從而實現各種功能，如請求解析、驗證、日誌記錄等。
 */
+// 把請求的資料解析成json
 app.use(express.json())
 app.use((_, req, res, next) => {
   res.status(StatusCodes.BAD_REQUEST).json({
@@ -59,12 +66,14 @@ app.use((_, req, res, next) => {
     message: '資料格式錯誤'
   })
 })
-// 一定要在express.json()之後
-app.use(mongoSanitize())
 
-// 路由
+app.use(mongoSanitize()) // 一定要在express.json()之後
+
+// index.js中請求太多會很雜很亂，因此可建立用路由來進行分類
+// 所有進到 /user 路徑的請求都交給 routeUser 處理
+// 最終路徑為http://localhost:4000/user/routeUser裡的路徑
 app.use('/user', routeUser)
-// app.use('/order', routeOrder)
+app.use('/song', routeSong)
 
 app.all('*', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json({

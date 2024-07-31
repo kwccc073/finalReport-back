@@ -8,7 +8,7 @@ export const create = async (req, res) => {
     await User.create(req.body)
     res.status(StatusCodes.OK).json({
       success: true,
-      message: ''
+      message: '註冊成功-controller'
     })
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -41,13 +41,12 @@ export const login = async (req, res) => {
     await req.user.save()
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '',
+      message: '登入成功-controller',
       result: {
-        // 回傳前端需要的東西
         token,
-        account: req.user.account, // 帳號
-        role: req.user.role, // 現在是否為管理員
-        cart: req.user.cartQuantity // 購物車
+        account: req.user.account // 帳號
+        // role: req.user.role, // 現在是否為管理員
+        // cart: req.user.cartQuantity // 購物車
       }
     })
   } catch (error) {
@@ -114,7 +113,7 @@ export const logout = async (req, res) => {
     await req.user.save() // 保存
     res.status(StatusCodes.OK).json({
       success: true,
-      message: ''
+      message: '登出成功-controller'
     })
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
