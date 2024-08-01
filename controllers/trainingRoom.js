@@ -1,21 +1,21 @@
 // 引入 model
-import Song from '../models/song.js'
+import TrainingRoom from '../models/trainingRoom.js'
 // 引入狀態碼
 import { StatusCodes } from 'http-status-codes'
 import validator from 'validator'
 
-// 建立歌曲
+// 建立練鼓室
 export const create = async (req, res) => {
   try {
     // .create()是monogoose內建的，用來創建並保存一個新資料到資料庫
-    const result = await Song.create(req.body)
+    const result = await TrainingRoom.create(req.body)
     // 向客戶端發送一個 HTTP 回應，回應內容為 JSON 格式，如下
     res.status(StatusCodes.OK).json({
       // 操作是否成功
       success: true,
       // 額外的說明
-      message: '建立歌曲成功-controller',
-      // 是上面的變數= Song.create(req.body)
+      message: '建立練鼓室成功-controller',
+      // 是上面的變數= TrainingRoom.create(req.body)
       result
     })
   } catch (error) {
@@ -36,7 +36,7 @@ export const create = async (req, res) => {
   }
 }
 
-// 取得全部歌曲資料-------------------------------------------------------------
+// 取得全部練鼓室資料-------------------------------------------------------------
 export const getAll = async (req, res) => {
   try {
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
@@ -53,17 +53,17 @@ export const getAll = async (req, res) => {
     const regex = new RegExp(req.query.search || '', 'i')
 
     // 尋找商品--------------------------------------------
-    const data = await Song
+    const data = await TrainingRoom
       // 查詢---------------------------------
       // .find()為JS內建的陣列方法，()裡面放查詢條件
       .find({
         // 先寫演唱/演奏者、歌名就好*****待編輯******
         $or: [
           // 演唱/演奏者符合regex
-          { singer: regex },
+          { city: regex },
           // 歌名符合regex
-          { songTitle: regex },
-          { songStyle: regex }
+          { trainingRoomName: regex },
+          { fee: regex }
         ]
       })
       // 排序----------------------------------
@@ -82,12 +82,12 @@ export const getAll = async (req, res) => {
 
     // 總共幾筆資料----------------------------
     // .estimatedDocumentCount()是monogoose內建的
-    const total = await Song.estimatedDocumentCount()
+    const total = await TrainingRoom.estimatedDocumentCount()
 
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找全部歌曲-controller',
+      message: '尋找全部練鼓室-controller',
       result: {
         data, total
       }

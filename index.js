@@ -10,6 +10,7 @@ import rateLimit from 'express-rate-limit'
 // 引入檔案
 import routeUser from './routes/user.js'
 import routeSong from './routes/song.js'
+import routeTrainingRoom from './routes/trainingRoom.js'
 import './passport/passport.js'
 
 // 建立express伺服器
@@ -63,7 +64,7 @@ app.use(express.json())
 app.use((_, req, res, next) => {
   res.status(StatusCodes.BAD_REQUEST).json({
     success: false,
-    message: '資料格式錯誤'
+    message: '資料格式錯誤-index'
   })
 })
 
@@ -74,11 +75,12 @@ app.use(mongoSanitize()) // 一定要在express.json()之後
 // 最終路徑為http://localhost:4000/user/routeUser裡的路徑
 app.use('/user', routeUser)
 app.use('/song', routeSong)
+app.use('/trainingRoom', routeTrainingRoom)
 
 app.all('*', (req, res) => {
   res.status(StatusCodes.NOT_FOUND).json({
     success: false,
-    message: '找不到'
+    message: '找不到-index.js'
   })
 })
 

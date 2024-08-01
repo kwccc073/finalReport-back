@@ -8,20 +8,20 @@ import jsonwebtoken from 'jsonwebtoken'
 
 export const login = (req, res, next) => {
   // passport.authenticate('login' => 會先跳到資料夾passport的passport.js裡的名為login的驗證方式
-  // 先檢查有沒有帳號密碼欄位，成功跑完才繼續下方內容
+  // 檢查有沒有帳號密碼欄位，成功跑完才繼續下方內容
   // passport.js裡的 done( , , )的三個參數會對應到(error, user, info)
   passport.authenticate('login', { session: false }, (error, user, info) => {
     if (!user || error) {
       if (info.message === 'Missing credentials') {
         res.status(StatusCodes.BAD_REQUEST).json({
           success: false,
-          message: '輸入欄位錯誤'
+          message: '輸入欄位錯誤-auth.js'
         })
         return
       } else if (info.message === '未知錯誤') {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: '未知錯誤'
+          message: '未知錯誤-auth.js'
         })
         return
       } else {
