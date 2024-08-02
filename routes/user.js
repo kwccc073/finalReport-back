@@ -1,7 +1,9 @@
 // 引入建構api的套件
 import { Router } from 'express'
-import { create, login, extend, profile, logout } from '../controllers/user.js'
+import { create, login, extend, profile, logout, edit } from '../controllers/user.js'
+// 引入middlewares
 import * as auth from '../middlewares/auth.js'
+import upload from '../middlewares/upload.js'
 
 const router = Router()
 
@@ -14,5 +16,7 @@ router.patch('/extend', auth.jwt, extend)
 router.get('/profile', auth.jwt, profile)
 // 登出
 router.delete('/logout', auth.jwt, logout)
+// 編輯個人資料
+router.patch('/:id', auth.jwt, upload, edit)
 
 export default router

@@ -48,6 +48,10 @@ const schema = new Schema({
       message: '使用者信箱格式錯誤'
     }
   },
+  // 大頭貼
+  icon: {
+    type: String
+  },
   tokens: {
     type: [String] // 文字陣列
   }

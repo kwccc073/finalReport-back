@@ -92,8 +92,11 @@ export const profile = (req, res) => {
         // 回傳前端會需要的東西
         // 這裡不需要token，因為token已經在前端了
         account: req.user.account,
-        role: req.user.role,
-        cart: req.user.cartQuantity
+        email: req.user.email,
+        icon: req.user.icon,
+        id: req.user._id
+        // role: req.user.role,
+        // cart: req.user.cartQuantity
       }
     })
   } catch (error) {
@@ -120,5 +123,51 @@ export const logout = async (req, res) => {
       success: false,
       message: '未知錯誤'
     })
+  }
+}
+
+// 編輯使用者資料---------------------------------------------------------------------
+export const edit = async (req, res) => {
+  try {
+    if (!validator.isMongoId(req.params.id)) throw new Error('ID')
+
+    // req.body是前端送過來的
+    req.body.icon = req.file?.path // ? 是因為有可能不換圖片
+
+    // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
+    // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
+    await User.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+
+    // 回應狀態碼
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '編輯個人資料成功-controller'
+    })
+  } catch (error) {
+    if (error.name === 'CastError' || error.message === 'ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '個人資料 ID 格式錯誤-controller'
+      })
+    } else if (error.message === 'NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '查無個人資料-controller'
+      })
+    } else if (error.name === 'ValidationError') { // 驗證錯誤
+      // 先取出錯誤的第一個東西
+      const key = Object.keys(error.errors)[0]
+      // 再取錯誤訊息
+      const message = error.errors[key].message
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '未知錯誤-controller'
+      })
+    }
   }
 }

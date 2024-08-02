@@ -4,7 +4,7 @@ import TrainingRoom from '../models/trainingRoom.js'
 import { StatusCodes } from 'http-status-codes'
 import validator from 'validator'
 
-// 建立練鼓室
+// 建立練鼓室-----------------------------------------------------
 export const create = async (req, res) => {
   try {
     // .create()是monogoose內建的，用來創建並保存一個新資料到資料庫
@@ -36,6 +36,48 @@ export const create = async (req, res) => {
   }
 }
 
+// 編輯練鼓室---------------------------------------------------------------------
+export const edit = async (req, res) => {
+  try {
+    if (!validator.isMongoId(req.params.id)) throw new Error('ID')
+    // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
+    // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
+    await TrainingRoom.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+
+    // 回應狀態碼
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '編輯練鼓室成功-controller'
+    })
+  } catch (error) {
+    if (error.name === 'CastError' || error.message === 'ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '練鼓室 ID 格式錯誤-controller'
+      })
+    } else if (error.message === 'NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '查無練鼓室-controller'
+      })
+    } else if (error.name === 'ValidationError') { // 驗證錯誤
+      // 先取出錯誤的第一個東西
+      const key = Object.keys(error.errors)[0]
+      // 再取錯誤訊息
+      const message = error.errors[key].message
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '未知錯誤-controller'
+      })
+    }
+  }
+}
+
 // 取得全部練鼓室資料-------------------------------------------------------------
 export const getAll = async (req, res) => {
   try {
@@ -52,18 +94,16 @@ export const getAll = async (req, res) => {
     // 'i'是正則表達式的模式，表示不分大小寫
     const regex = new RegExp(req.query.search || '', 'i')
 
-    // 尋找商品--------------------------------------------
+    // 尋找練鼓室----------------------
     const data = await TrainingRoom
-      // 查詢---------------------------------
+      // 查詢---------
       // .find()為JS內建的陣列方法，()裡面放查詢條件
       .find({
-        // 先寫演唱/演奏者、歌名就好*****待編輯******
         $or: [
-          // 演唱/演奏者符合regex
+          // 城市符合regex
           { city: regex },
-          // 歌名符合regex
-          { trainingRoomName: regex },
-          { fee: regex }
+          // 名稱符合regex
+          { trainingRoomName: regex }
         ]
       })
       // 排序----------------------------------
