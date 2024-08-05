@@ -2,6 +2,11 @@
 import { Schema, model } from 'mongoose'
 
 const schema = new Schema({
+  // 建立此歌曲的使用者
+  editor: {
+    type: String,
+    required: [true, '建立者必填-model']
+  },
   // 歌手/樂團
   singer: {
     type: String,
