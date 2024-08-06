@@ -52,7 +52,7 @@ export const getAll = async (req, res) => {
     // 'i'是正則表達式的模式，表示不分大小寫
     const regex = new RegExp(req.query.search || '', 'i')
 
-    // 尋找商品--------------------------------------------
+    // 尋找歌曲--------------------------------------------
     const data = await Song
       // 查詢---------------------------------
       // .find()為JS內建的陣列方法，()裡面放查詢條件
@@ -98,5 +98,37 @@ export const getAll = async (req, res) => {
       success: false,
       message: '未知錯誤-controller'
     })
+  }
+}
+
+// 查單個歌曲 （歌曲介面用）--------------------------------------------------------------------
+export const getId = async (req, res) => {
+  try {
+    if (!validator.isMongoId(req.params.id)) throw new Error('ID')
+
+    const result = await Song.findById(req.params.id).orFail(new Error('NOT FOUND'))
+
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '成功查單個歌曲-controller',
+      result
+    })
+  } catch (error) {
+    if (error.name === 'CastError' || error.message === 'ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '歌曲 ID 格式錯誤-controller'
+      })
+    } else if (error.message === 'NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '查無歌曲-controller'
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '未知錯誤-controller'
+      })
+    }
   }
 }

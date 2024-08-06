@@ -4,7 +4,7 @@ import { Router } from 'express'
 import upload from '../middlewares/upload.js'
 import * as auth from '../middlewares/auth.js'
 // 引入controllers中的函式
-import { create, getAll } from '../controllers/song.js'
+import { create, getAll, getId } from '../controllers/song.js'
 
 const router = Router()
 
@@ -14,5 +14,6 @@ const router = Router()
 router.post('/', auth.jwt, upload, create)
 // 顯示歌曲用-----------------------------
 router.get('/all', getAll)
-
+// /:id => 指定id的商品 （歌曲介面用）
+router.get('/:id', getId)
 export default router

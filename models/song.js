@@ -32,33 +32,33 @@ const schema = new Schema({
     type: Number,
     required: [true, 'BPM必填-model'],
     default: 0 // 預設為 0
-  }
+  },
   // 難易度
-  // degreen: {
-  //   type: [Number], // 數字陣列
-  //   default: 1,
-  //   minlength: [1, '最少1分'],
-  //   maxlength: [5, '最多5分']
-  //   // 待編輯
-  // },
+  degreen: {
+    type: [Number], // 數字陣列
+    default: []
+    // minlength: [1, '最少1分'],
+    // maxlength: [5, '最多5分']
+    // 待編輯
+  },
   // 拍號：一個小節有幾拍
-  // signatureSection: {
-  //   type: Number,
-  //   required: [true, '必填'],
-  //   default: 4,
-  //   enum: {
-  //     values: [2, 3, 4, 6, 9]
-  //   }
-  // },
+  signatureSection: {
+    type: Number,
+    // required: [true, '必填'],
+    default: 4,
+    enum: {
+      values: [2, 3, 4, 6, 9]
+    }
+  },
   // 拍號：以幾分音符為一拍
-  // signatureNote: {
-  //   type: Number,
-  //   required: [true, '必填'],
-  //   default: 4,
-  //   enum: {
-  //     values: [2, 4, 8]
-  //   }
-  // }
+  signatureNote: {
+    type: Number,
+    // required: [true, '必填'],
+    default: 4,
+    enum: {
+      values: [2, 4, 8]
+    }
+  }
 }, {
   timestamps: true,
   versionKey: false
