@@ -1,5 +1,21 @@
 // 引入套件
-import { Schema, model } from 'mongoose'
+import { Schema, model, ObjectId } from 'mongoose'
+
+// 留言
+const messageSchema = Schema({
+  // 外來鍵 Foreign Key (FK)，用來存放來別張資料表的資料主鍵
+  user: {
+    type: ObjectId,
+    ref: 'users'
+    // 必填***待編輯***
+    // required: [true, '使用者必填']
+  },
+  message: {
+    type: String
+    // 必填***待編輯***
+    // required: [true, '留言內容必填']
+  }
+})
 
 const schema = new Schema({
   // 建立此歌曲的使用者
@@ -42,9 +58,9 @@ const schema = new Schema({
     // 待編輯
   },
   // 拍號：一個小節有幾拍
-  signatureSection: {
+  signatureBeat: {
     type: Number,
-    // required: [true, '必填'],
+    required: [true, '必填'],
     default: 4,
     enum: {
       values: [2, 3, 4, 6, 9]
@@ -53,11 +69,26 @@ const schema = new Schema({
   // 拍號：以幾分音符為一拍
   signatureNote: {
     type: Number,
-    // required: [true, '必填'],
+    required: [true, '必填'],
     default: 4,
     enum: {
       values: [2, 4, 8]
     }
+  },
+  scoreHiHat: {
+    type: [[[Boolean]]]
+    // 預設值待編輯
+  },
+  scoreSnare: {
+    type: [[[Boolean]]]
+    // 預設值待編輯
+  },
+  scoreKick: {
+    type: [[[Boolean]]]
+    // 預設值待編輯
+  },
+  message: {
+    type: [messageSchema]
   }
 }, {
   timestamps: true,
