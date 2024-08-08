@@ -50,7 +50,8 @@ const schema = new Schema({
   },
   // 大頭貼
   icon: {
-    type: String
+    type: String,
+    default: ''
   },
   tokens: {
     type: [String] // 文字陣列

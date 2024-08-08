@@ -75,17 +75,27 @@ const schema = new Schema({
       values: [2, 4, 8]
     }
   },
+  // score部分-----------------------------------------------------
+  // 前端會以JSON 字串形式傳進來，儲存前才會轉回原始格式，因此不能寫type: [[[Boolean]]]會傳送失敗
+  // 預設值待編輯*********
   scoreHiHat: {
-    type: [[[Boolean]]]
-    // 預設值待編輯
+    // required前一定要有type，但type: String最後會保存JSON文檔而不是轉換後的原始數據
+    // type: String,
+    // required: [true, 'scoreHiHat必填']
   },
   scoreSnare: {
-    type: [[[Boolean]]]
-    // 預設值待編輯
+    // type: String,
+    // required: [true, 'scoreSnare必填']
   },
   scoreKick: {
-    type: [[[Boolean]]]
-    // 預設值待編輯
+    // type: String,
+    // required: [true, 'scoreKick必填']
+  },
+  // 隱私狀態－true公開、false私人
+  isPublic: {
+    type: Boolean,
+    required: [true, '隱私狀態必填'],
+    default: true
   },
   message: {
     type: [messageSchema]
@@ -93,6 +103,17 @@ const schema = new Schema({
 }, {
   timestamps: true,
   versionKey: false
+})
+
+// 在被保存至資料庫之前要執行的動作-----------------------
+// 把JSON字串轉回原本的形式
+schema.pre('save', function (next) {
+  const song = this
+  // 將前端以JSON字串形式傳回來的scoreHiHat、scoreSnare、scoreKick 恢復原始數據結構
+  song.scoreHiHat = JSON.parse(song.scoreHiHat)
+  song.scoreSnare = JSON.parse(song.scoreSnare)
+  song.scoreKick = JSON.parse(song.scoreKick)
+  next()
 })
 
 export default model('songs', schema)
