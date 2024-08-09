@@ -1,8 +1,10 @@
 import User from '../models/user.js'
+import Song from '../models/song.js'
 import { StatusCodes } from 'http-status-codes'
 import jwt from 'jsonwebtoken'
 import validator from 'validator'
 
+// 建立帳號-------------------------------------------------------
 export const create = async (req, res) => {
   try {
     await User.create(req.body)
@@ -34,6 +36,7 @@ export const create = async (req, res) => {
   }
 }
 
+// 登入-----------------------------------------------------------
 export const login = async (req, res) => {
   try {
     const token = jwt.sign({ _id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7 days' })
@@ -46,7 +49,7 @@ export const login = async (req, res) => {
         token,
         account: req.user.account // 帳號
         // role: req.user.role, // 現在是否為管理員
-        // cart: req.user.cartQuantity // 購物車
+        // save: req.user.saveQuantity // 收藏欄位
       }
     })
   } catch (error) {
@@ -57,7 +60,7 @@ export const login = async (req, res) => {
   }
 }
 
-// 舊換新-----------------------------------------------------------------------------------------
+// token的舊換新-----------------------------------------------------------------------------------------
 export const extend = async (req, res) => {
   try {
     // 先找索引，找到的token是否等於現在的token
@@ -96,7 +99,7 @@ export const profile = (req, res) => {
         icon: req.user.icon,
         id: req.user._id
         // role: req.user.role,
-        // cart: req.user.cartQuantity
+        // save: req.user.saveQuantity
       }
     })
   } catch (error) {
@@ -167,6 +170,67 @@ export const edit = async (req, res) => {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: '未知錯誤-controller'
+      })
+    }
+  }
+}
+
+// 收藏歌曲---------------------------------------------------------------------------
+export const editSave = async (req, res) => {
+  try {
+    // 先檢查傳入的歌曲 id 是否正確
+    console.log(req.body)
+    if (!validator.isMongoId(req.body.song)) throw new Error('ID')
+
+    // 尋找收藏欄位內是否有傳入的這個歌曲id：若有 => 取消收藏、沒有 => 加入收藏
+    const idx = req.user.saving.findIndex(req.body.song)
+    // idx > -1 => 收藏欄位內有這個歌曲
+    if (idx > -1) {
+      // 修改後的數量 <= 0，刪除此歌曲
+      // splice(idx, 1)表示從索引刪除一個
+      req.user.saving.splice(idx, 1)
+    } else {
+      // 如果收藏欄位內沒這個歌曲：檢查這個歌曲是否存在
+      const song = await Song.findById(req.body.song).orFail(new Error('NOT FOUND')) // 沒有找到的話就丟出錯誤'NOT FOUND'
+      if (!song.isPublic) throw new Error('PUBLIC') // 如果下架了就丟出錯誤'PUBLIC'
+
+      req.user.saving.push(
+        song._id
+      )
+    }
+
+    await req.user.save() // 保存
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '編輯收藏欄位成功-controller'
+    })
+  } catch (error) {
+    if (error.name === 'CastError' || error.message === 'ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '歌曲 ID 格式錯誤'
+      })
+    } else if (error.message === 'NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '查無歌曲'
+      })
+    } else if (error.message === 'PUBLIC') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '歌曲已鎖住'
+      })
+    } else if (error.name === 'ValidationError') {
+      const key = Object.keys(error.errors)[0]
+      const message = error.errors[key].message
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '未知錯誤'
       })
     }
   }

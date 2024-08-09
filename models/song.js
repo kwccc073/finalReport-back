@@ -116,4 +116,15 @@ schema.pre('save', function (next) {
   next()
 })
 
+// 更新後的資料，保存至資料庫前要經過的動作-------------------
+// 把JSON字串轉回原本的形式
+schema.pre('findOneAndUpdate', function (next) {
+  const update = this.getUpdate()
+
+  update.scoreHiHat = JSON.parse(update.scoreHiHat)
+  update.scoreSnare = JSON.parse(update.scoreSnare)
+  update.scoreKick = JSON.parse(update.scoreKick)
+
+  next()
+})
 export default model('songs', schema)

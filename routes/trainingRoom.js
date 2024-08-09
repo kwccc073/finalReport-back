@@ -14,8 +14,8 @@ const router = Router()
 router.post('/', upload, create)
 // 顯示練鼓室資料用-----------------------------
 router.get('/all', getAll)
-
-// 編輯商品----------------------------------------
-// /:id => 指定id的商品
+// 編輯練鼓室----------------------------------------
+// /:id => 指定id的練鼓室
 router.patch('/:id', upload, edit)
+
 export default router

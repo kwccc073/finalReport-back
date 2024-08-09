@@ -55,11 +55,15 @@ const schema = new Schema({
   },
   tokens: {
     type: [String] // 文字陣列
+  },
+  // 我的收藏
+  saving: {
+    type: [{
+      type: ObjectId,
+      ref: 'songs'
+    }],
+    default: []
   }
-  // 購物車不需要，待改成收藏等等項目*************
-  // cart: {
-  //   type: [cartSchema]
-  // },
 }, {
   // 紀錄使用者建立的時間
   timestamps: true,
