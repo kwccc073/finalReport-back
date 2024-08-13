@@ -252,8 +252,8 @@ export const getSaving = async (req, res) => {
     // 要先取得使用者，然後只要找他的收藏匣欄位('saving')
     // .populate('要關聯的欄位')用關聯的方式把歌曲資訊帶入
     const result = await User.findById(req.user._id, 'saving').populate('saving')
-
-    console.log(req.query)
+    console.log('result', result)
+    console.log('req.query', req.query)
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
     // || 表示如果有前面的值則帶入前面的值
     // 若前面的值為null、undefined、0、NaN、空字符串 '' 或 false，則帶入後面的值
@@ -268,7 +268,7 @@ export const getSaving = async (req, res) => {
     // 'i'是正則表達式的模式，表示不分大小寫
     const regex = new RegExp(req.query.search || '', 'i')
 
-    // 尋找歌曲--------------------------------------------
+    // 尋找歌曲****沒有成功搜尋，待編輯*****--------------------------------------------
     const data = await Song
       // 查詢---------------------------------
       // .find()為JS內建的陣列方法，()裡面放查詢條件
@@ -301,6 +301,7 @@ export const getSaving = async (req, res) => {
     // .estimatedDocumentCount()是monogoose內建的
     const total = await Song.estimatedDocumentCount()
 
+    console.log('data', data)
     res.status(StatusCodes.OK).json({
       success: true,
       message: '取得收藏匣成功-controller',
