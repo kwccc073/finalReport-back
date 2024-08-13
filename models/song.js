@@ -99,6 +99,11 @@ const schema = new Schema({
   },
   message: {
     type: [messageSchema]
+  },
+  savedTimes: {
+    type: Number,
+    default: 0,
+    min: [0, '收藏次數最小值為0']
   }
 }, {
   timestamps: true,
@@ -121,9 +126,28 @@ schema.pre('save', function (next) {
 schema.pre('findOneAndUpdate', function (next) {
   const update = this.getUpdate()
 
-  update.scoreHiHat = JSON.parse(update.scoreHiHat)
-  update.scoreSnare = JSON.parse(update.scoreSnare)
-  update.scoreKick = JSON.parse(update.scoreKick)
+  if (update.scoreHiHat && typeof update.scoreHiHat === 'string') {
+    try {
+      update.scoreHiHat = JSON.parse(update.scoreHiHat)
+    } catch (error) {
+      return next(new Error('Invalid JSON for scoreHiHat'))
+    }
+  }
+  if (update.scoreSnare && typeof update.scoreSnare === 'string') {
+    try {
+      update.scoreSnare = JSON.parse(update.scoreSnare)
+    } catch (error) {
+      return next(new Error('Invalid JSON for scoreSnare'))
+    }
+  }
+
+  if (update.scoreKick && typeof update.scoreKick === 'string') {
+    try {
+      update.scoreKick = JSON.parse(update.scoreKick)
+    } catch (error) {
+      return next(new Error('Invalid JSON for scoreKick'))
+    }
+  }
 
   next()
 })

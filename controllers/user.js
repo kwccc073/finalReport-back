@@ -97,7 +97,8 @@ export const profile = (req, res) => {
         account: req.user.account,
         email: req.user.email,
         icon: req.user.icon,
-        id: req.user._id
+        id: req.user._id,
+        saving: req.user.saving
         // role: req.user.role,
         // save: req.user.saveQuantity
       }
@@ -178,9 +179,10 @@ export const edit = async (req, res) => {
 // 收藏歌曲---------------------------------------------------------------------------
 export const editSaving = async (req, res) => {
   try {
-    console.log('req.body.song為', req.body.song)
     // 先檢查傳入的歌曲 id 對不對
     if (!validator.isMongoId(req.body.song)) throw new Error('ID')
+    // 檢查歌曲是否存在
+    const song = await Song.findById(req.body.song).orFail(new Error('NOT FOUND')) // 沒有找到的話就丟出錯誤'NOT FOUND'
     // 尋找收藏匣內是否有傳入的這個歌曲id：若有 => 取消收藏、沒有 => 加入收藏
     // 這個req會包含使用者的資訊
     // item.p_id會是MongoDB的格式，需要toString()才能和req.body.song比較
@@ -189,15 +191,23 @@ export const editSaving = async (req, res) => {
     let isSaving = true
     if (idx > -1) {
       // 刪除此歌曲
-      // splice(idx, 1)表示從索引刪除一個
       req.user.saving.splice(idx, 1)
       isSaving = false
+      // 更新歌曲的收藏次數
+      await Song.findByIdAndUpdate(
+        req.body.song,
+        { $inc: { savedTimes: -1 } }, // 收藏次數 -1
+        { new: true }
+      )
     } else {
-      // 如果收藏匣內沒這個歌曲
-      // 先檢查這個歌曲是否存在
-      const song = await Song.findById(req.body.song).orFail(new Error('NOT FOUND')) // 沒有找到的話就丟出錯誤'NOT FOUND'
+      // 如果收藏匣內沒這個歌曲進行以下操作
       if (!song.isPublic) throw new Error('PUBLIC') // 如果歌曲未公開就丟出錯誤'PUBLIC'
-
+      // 更新歌曲的收藏次數
+      await Song.findByIdAndUpdate(
+        req.body.song,
+        { $inc: { savedTimes: 1 } }, // 收藏次數 -1
+        { new: true }
+      )
       req.user.saving.push(
         song._id
       )
@@ -205,8 +215,7 @@ export const editSaving = async (req, res) => {
       isSaving = true
     }
 
-    console.log(isSaving)
-    await req.user.save() // 保存
+    await req.user.save() // 保存使用者資料
     res.status(StatusCodes.OK).json({
       success: true,
       message: '編輯收藏匣成功-controller',

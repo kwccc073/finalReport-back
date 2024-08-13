@@ -106,7 +106,6 @@ export const getAll = async (req, res) => {
 // 得到自己的歌曲資料-----------------------------------------------------
 export const getMy = async (req, res) => {
   try {
-    console.log(req.query)
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
     // || 表示如果有前面的值則帶入前面的值
     // 若前面的值為null、undefined、0、NaN、空字符串 '' 或 false，則帶入後面的值
@@ -255,4 +254,60 @@ export const edit = async (req, res) => {
       console.log('Caught error:', error)
     }
   }
+}
+
+// 得到最新的五筆資料-----------------------------------------------------------
+// 刪除不需要的參數***待編輯***
+export const getNew = async (req, res) => {
+  try {
+    // 取得前端送過來的參數，使用預設值
+    const sortBy = req.query.sortBy || 'createdAt'
+    const sortOrder = req.query.sortOrder || 'desc'
+    const itemsPerPage = 5 // 限制取前五筆資料
+    const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
+
+    // 建立搜尋正則表達式***應該不需要，待編輯***
+    const regex = new RegExp(req.query.search || '', 'i')
+
+    // 尋找歌曲--------------------------------------------
+    const data = await Song
+      .find({
+        isPublic: true, // 找出公開狀態的歌曲
+        // ***應該不需要這裡***
+        $or: [
+          { singer: regex },
+          { songTitle: regex },
+          { songStyle: regex }
+        ]
+      })
+      .sort({ [sortBy]: sortOrder }) // 排序
+      .limit(itemsPerPage) // 限制回傳數量為5筆
+
+    // 總共幾筆資料----------------------------
+    const total = await Song.estimatedDocumentCount()
+
+    // 回傳狀態碼------------------------------
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '尋找全部歌曲-controller',
+      result: {
+        data, total
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '未知錯誤-controller'
+    })
+  }
+}
+
+// 得到最熱門的歌曲 ***待編輯***-------------------------------------------------------------
+export const getPopular = async (req, res) => {
+  // try {
+  //
+  // } catch (error) {
+  //
+  // }
 }
