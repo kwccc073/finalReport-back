@@ -267,24 +267,26 @@ export const getNew = async (req, res) => {
     const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
 
     // 建立搜尋正則表達式***應該不需要，待編輯***
-    const regex = new RegExp(req.query.search || '', 'i')
+    // const regex = new RegExp(req.query.search || '', 'i')
 
     // 尋找歌曲--------------------------------------------
     const data = await Song
       .find({
-        isPublic: true, // 找出公開狀態的歌曲
+        isPublic: true // 找出公開狀態的歌曲
         // ***應該不需要這裡***
-        $or: [
-          { singer: regex },
-          { songTitle: regex },
-          { songStyle: regex }
-        ]
+        // $or: [
+        //   { singer: regex },
+        //   { songTitle: regex },
+        //   { songStyle: regex }
+        // ]
       })
       .sort({ [sortBy]: sortOrder }) // 排序
       .limit(itemsPerPage) // 限制回傳數量為5筆
 
     // 總共幾筆資料----------------------------
-    const total = await Song.estimatedDocumentCount()
+    const total = await Song.estimatedDocumentCount({
+      isPublic: true // 計算公開狀態的歌曲總數
+    })
 
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
@@ -303,11 +305,51 @@ export const getNew = async (req, res) => {
   }
 }
 
-// 得到最熱門的歌曲 ***待編輯***-------------------------------------------------------------
+// 得到最熱門的歌曲-------------------------------------------------------------
+// 刪除不需要的參數***待編輯***
 export const getPopular = async (req, res) => {
-  // try {
-  //
-  // } catch (error) {
-  //
-  // }
+  try {
+    // 取得前端送過來的參數，使用預設值
+    const sortBy = 'savedTimes' // 依照savedTimes排序
+    const sortOrder = 'desc' // 降序排列
+    const itemsPerPage = 5 // 限制取前五筆資料
+    const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
+
+    // 建立搜尋正則表達式***應該不需要，待編輯***
+    // const regex = new RegExp(req.query.search || '', 'i')
+
+    // 尋找歌曲--------------------------------------------
+    const data = await Song
+      .find({
+        isPublic: true // 找出公開狀態的歌曲
+        // ***應該不需要這裡***
+        // $or: [
+        //   { singer: regex },
+        //   { songTitle: regex },
+        //   { songStyle: regex }
+        // ]
+      })
+      .sort({ [sortBy]: sortOrder }) // 以 savedTimes 降序排序
+      .limit(itemsPerPage) // 限制回傳數量為5筆
+
+    // 總共幾筆資料----------------------------
+    const total = await Song.estimatedDocumentCount({
+      isPublic: true // 計算公開狀態的歌曲總數
+    })
+
+    // 回傳狀態碼------------------------------
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '尋找收藏最多的歌曲-controller',
+      result: {
+        data, total
+      }
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '未知錯誤-controller'
+    })
+  }
 }

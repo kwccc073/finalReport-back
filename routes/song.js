@@ -4,7 +4,7 @@ import { Router } from 'express'
 import upload from '../middlewares/upload.js'
 import * as auth from '../middlewares/auth.js'
 // 引入controllers中的函式
-import { create, getAll, getMy, getId, edit,getNew } from '../controllers/song.js'
+import { create, getAll, getMy, getId, edit, getNew, getPopular } from '../controllers/song.js'
 
 const router = Router()
 
@@ -15,7 +15,11 @@ router.post('/', auth.jwt, upload, create)
 // 取得所有公開的歌曲for 所有人-----------------------------
 // 尋找鼓譜頁面用
 router.get('/all', getAll)
+// 首頁－最新上架用
 router.get('/new', getNew)
+// 首頁－熱門歌曲用
+router.get('/popular', getPopular)
+
 // 取得自己的歌曲 for 建立者-------------------------
 router.get('/my', auth.jwt, getMy)
 // /:id => 取得指定id的商品 （單首歌曲介面用）for 所有人
