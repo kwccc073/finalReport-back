@@ -216,7 +216,60 @@ export const edit = async (req, res) => {
     // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
     // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
     // console.log('完成if') // 這裡有顯示
-    console.log(req.params.id)
+    // console.log(req.params.id)
+    await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+
+    console.log('全部完成') // 這裡沒有顯示，所以是上面這行沒有過
+    // 回應狀態碼
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: '編輯歌曲成功-controller'
+    })
+  } catch (error) {
+    if (error.name === 'CastError' || error.message === 'ID') {
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: '歌曲 ID 格式錯誤-controller',
+        error: [error.path, error.reason]
+      })
+    } else if (error.message === 'NOT FOUND') {
+      res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '查無歌曲-controller'
+      })
+    } else if (error.name === 'ValidationError') { // 驗證錯誤
+      // 先取出錯誤的第一個東西
+      const key = Object.keys(error.errors)[0]
+      // 再取錯誤訊息
+      const message = error.errors[key].message
+      res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message
+      })
+    } else {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: '未知錯誤-controller'
+      })
+      console.log('Caught error:', error)
+    }
+  }
+}
+
+// 刪除歌曲***待編輯***
+export const deleteSong = async (req, res) => {
+  try {
+    // 如果不是建立者if (req.query.user !== ???)
+    // req.query.user => 現在登入的使用者
+    // ??? => 歌曲的建立者
+    // const data = await Song.findById(req.params.id)  **待編輯**
+    // if (req.query.user !== data.name) throw new Error('EDITOR') **待編輯**
+    // console.log('req.params.id為', req.params.id)
+    // console.log('req.body為', req.body)
+    if (!validator.isMongoId(req.params.id)) throw new Error('ID')
+    // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
+    // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
+    // console.log(req.params.id)
     await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
 
     console.log('全部完成') // 這裡沒有顯示，所以是上面這行沒有過
@@ -257,7 +310,7 @@ export const edit = async (req, res) => {
 }
 
 // 得到最新的五筆資料-----------------------------------------------------------
-// 刪除不需要的參數***待編輯***
+// ***待編輯***刪除不需要的參數
 export const getNew = async (req, res) => {
   try {
     // 取得前端送過來的參數，使用預設值
