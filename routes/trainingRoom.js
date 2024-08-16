@@ -3,7 +3,7 @@ import { Router } from 'express'
 // 引入middlewares
 import upload from '../middlewares/upload.js'
 // 引入controllers中的函式
-import { create, edit, getAll } from '../controllers/trainingRoom.js'
+import { create, edit, getAll, deleteTrainingRoom } from '../controllers/trainingRoom.js'
 
 const router = Router()
 
@@ -17,5 +17,7 @@ router.get('/all', getAll)
 // 編輯練鼓室----------------------------------------
 // /:id => 指定id的練鼓室
 router.patch('/:id', upload, edit)
+// 刪除練鼓室--------------------------------------
+router.delete('/:id', deleteTrainingRoom)
 
 export default router

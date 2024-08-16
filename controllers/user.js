@@ -261,8 +261,13 @@ export const getSaving = async (req, res) => {
     // 要先取得使用者，然後只要找他的收藏匣欄位('saving')
     // .populate('要關聯的欄位')用關聯的方式把歌曲資訊帶入
     const result = await User.findById(req.user._id, 'saving').populate('saving')
-    console.log('result', result)
-    console.log('req.query', req.query)
+    // console.log(result.saving)
+    // const savedSongIds = result.saving.map(song => song._id.toString()) // 確保是 ObjectId 陣列
+    // console.log(savedSongIds)
+    // console.log('result:', result)
+    // console.log('result.saving[0]:', result.saving[0])
+    // console.log('req.query', req.query)
+
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
     // || 表示如果有前面的值則帶入前面的值
     // 若前面的值為null、undefined、0、NaN、空字符串 '' 或 false，則帶入後面的值
@@ -271,51 +276,69 @@ export const getSaving = async (req, res) => {
     // req.query收到的都是文字，所以要*1轉成數字
     const itemsPerPage = req.query.itemsPerPage * 1 || 10
     const page = req.query.page * 1 || 1
-    const user = req.query.user
     // 原本搜尋需要完全符合才可以搜尋到，因此需透過正則表達式來處理
     // 如果 req.query.search 沒有被定義或其值為「假值」（例如 null、undefined等）則會為''，''使search是空的情況下會全部都匹配
     // 'i'是正則表達式的模式，表示不分大小寫
     const regex = new RegExp(req.query.search || '', 'i')
 
     // 尋找歌曲****沒有成功搜尋，待編輯*****--------------------------------------------
-    const data = await Song
-      // 查詢---------------------------------
-      // .find()為JS內建的陣列方法，()裡面放查詢條件
-      .find({
-        // 找到作者是自己的歌曲
-        editor: user,
-        $or: [
-          // 演唱/演奏者符合regex
-          { singer: regex },
-          // 歌名符合regex
-          { songTitle: regex },
-          { songStyle: regex }
-        ]
+    const filteredSongs = result.saving
+      .filter(song => {
+        return (
+          (regex.test(song.singer) || regex.test(song.songTitle) || regex.test(song.songStyle))
+        )
       })
-      // 排序----------------------------------
-      // 這裡的[]不是指陣列
-      // {[要排序的欄位]: 排序的順序（如asc、desc`、1、-1）}
-      .sort({ [sortBy]: sortOrder })
+      // .sort(sortOrder) // 錯誤
+      // 排序 by GPT
+      // .sort((a, b) => {
+      //   if (sortOrder === 'asc') {
+      //     return a[sortBy] > b[sortBy] ? 1 : -1
+      //   } else {
+      //     return a[sortBy] < b[sortBy] ? 1 : -1
+      //   }
+      // })
+      // 分頁處理 by GPT
+      .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+      // .sort({ [sortBy]: sortOrder })
 
-      // 分頁----------------------------------
-      // 如果一頁有 10 筆
-      // 第一頁 = 1 ~ 10 = 跳過 0 筆 = (第 1 頁 - 1) * 10 = 0
-      // 第二頁 = 11 ~ 20 = 跳過 10 筆 = (第 2 頁 - 1) * 10 = 10
-      // 第三頁 = 21 ~ 30 = 跳過 20 筆 = (第 3 頁 - 1) * 10 = 20
-      // .skip()和.limit() 是 MongoDB 的查詢方法
-      .skip((page - 1) * itemsPerPage) // 跳過幾筆
-      .limit(itemsPerPage) // 回傳幾筆
+    // const data = await Song
+    //   // 查詢---------------------------------
+    //   // .find()為JS內建的陣列方法，()裡面放查詢條件
+    //   .find({
+    //     $or: [
+    //       // 演唱/演奏者符合regex
+    //       { singer: regex },
+    //       // 歌名符合regex
+    //       { songTitle: regex },
+    //       { songStyle: regex }
+    //     ]
+    //   })
+    //   // 排序----------------------------------
+    //   // 這裡的[]不是指陣列
+    //   // {[要排序的欄位]: 排序的順序（如asc、desc`、1、-1）}
+    //   .sort({ [sortBy]: sortOrder })
+
+    //   // 分頁----------------------------------
+    //   // 如果一頁有 10 筆
+    //   // 第一頁 = 1 ~ 10 = 跳過 0 筆 = (第 1 頁 - 1) * 10 = 0
+    //   // 第二頁 = 11 ~ 20 = 跳過 10 筆 = (第 2 頁 - 1) * 10 = 10
+    //   // 第三頁 = 21 ~ 30 = 跳過 20 筆 = (第 3 頁 - 1) * 10 = 20
+    //   // .skip()和.limit() 是 MongoDB 的查詢方法
+    //   .skip((page - 1) * itemsPerPage) // 跳過幾筆
+    //   .limit(itemsPerPage) // 回傳幾筆
 
     // 總共幾筆資料----------------------------
     // .estimatedDocumentCount()是monogoose內建的
     const total = await Song.estimatedDocumentCount()
 
-    console.log('data', data)
+    // console.log('data', data)
     res.status(StatusCodes.OK).json({
       success: true,
       message: '取得收藏匣成功-controller',
       result: [
-        result.saving, total
+        // result.saving,
+        filteredSongs,
+        total
       ]
     })
   } catch (error) {

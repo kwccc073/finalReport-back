@@ -219,7 +219,6 @@ export const edit = async (req, res) => {
     // console.log(req.params.id)
     await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
 
-    console.log('全部完成') // 這裡沒有顯示，所以是上面這行沒有過
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
@@ -264,19 +263,18 @@ export const deleteSong = async (req, res) => {
     // ??? => 歌曲的建立者
     // const data = await Song.findById(req.params.id)  **待編輯**
     // if (req.query.user !== data.name) throw new Error('EDITOR') **待編輯**
-    // console.log('req.params.id為', req.params.id)
-    // console.log('req.body為', req.body)
+
     if (!validator.isMongoId(req.params.id)) throw new Error('ID')
     // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
     // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
     // console.log(req.params.id)
-    await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+    await Song.findByIdAndDelete(req.params.id)
 
-    console.log('全部完成') // 這裡沒有顯示，所以是上面這行沒有過
+    console.log('刪除成功') // 這裡沒有顯示，所以是上面這行沒有過
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '編輯歌曲成功-controller'
+      message: '刪除歌曲成功-controller'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
@@ -317,7 +315,7 @@ export const getNew = async (req, res) => {
     const sortBy = req.query.sortBy || 'createdAt'
     const sortOrder = req.query.sortOrder || 'desc'
     const itemsPerPage = 5 // 限制取前五筆資料
-    const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
+    // const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
 
     // 建立搜尋正則表達式***應該不需要，待編輯***
     // const regex = new RegExp(req.query.search || '', 'i')
@@ -366,7 +364,7 @@ export const getPopular = async (req, res) => {
     const sortBy = 'savedTimes' // 依照savedTimes排序
     const sortOrder = 'desc' // 降序排列
     const itemsPerPage = 5 // 限制取前五筆資料
-    const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
+    // const page = req.query.page * 1 || 1 // 保留 page 參數，若需要可以繼續使用
 
     // 建立搜尋正則表達式***應該不需要，待編輯***
     // const regex = new RegExp(req.query.search || '', 'i')

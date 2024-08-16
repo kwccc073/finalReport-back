@@ -4,7 +4,7 @@ import { Router } from 'express'
 import upload from '../middlewares/upload.js'
 import * as auth from '../middlewares/auth.js'
 // 引入controllers中的函式
-import { create, getAll, getMy, getId, edit, getNew, getPopular } from '../controllers/song.js'
+import { create, getAll, getMy, getId, edit, deleteSong, getNew, getPopular } from '../controllers/song.js'
 
 const router = Router()
 
@@ -27,5 +27,6 @@ router.get('/:id', getId)
 // 編輯歌曲 for 建立者------------------------------
 router.patch('/:id', auth.jwt, upload, edit)
 // 刪除歌曲 for 建立者-------------------------------
+router.delete('/:id', auth.jwt, deleteSong)
 
 export default router
