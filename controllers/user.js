@@ -261,12 +261,15 @@ export const getSaving = async (req, res) => {
     // 要先取得使用者，然後只要找他的收藏匣欄位('saving')
     // .populate('要關聯的欄位')用關聯的方式把歌曲資訊帶入
     const result = await User.findById(req.user._id, 'saving').populate('saving')
-    // console.log(result.saving)
-    // const savedSongIds = result.saving.map(song => song._id.toString()) // 確保是 ObjectId 陣列
-    // console.log(savedSongIds)
-    // console.log('result:', result)
-    // console.log('result.saving[0]:', result.saving[0])
-    // console.log('req.query', req.query)
+
+    if (!result || !result.saving) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: '未找到收藏的歌曲'
+      })
+    }
+
+    console.log(result.saving) // 收藏的歌曲之完整資訊
 
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
     // || 表示如果有前面的值則帶入前面的值
@@ -281,67 +284,41 @@ export const getSaving = async (req, res) => {
     // 'i'是正則表達式的模式，表示不分大小寫
     const regex = new RegExp(req.query.search || '', 'i')
 
-    // 尋找歌曲****沒有成功搜尋，待編輯*****--------------------------------------------
+    // 過濾後的歌曲
     const filteredSongs = result.saving
+      // 尋找歌曲
       .filter(song => {
         return (
-          (regex.test(song.singer) || regex.test(song.songTitle) || regex.test(song.songStyle))
+          (regex.test(song.singer) ||
+           regex.test(song.songTitle) ||
+            regex.test(song.songStyle))
         )
       })
-      // .sort(sortOrder) // 錯誤
-      // 排序 by GPT
-      // .sort((a, b) => {
-      //   if (sortOrder === 'asc') {
-      //     return a[sortBy] > b[sortBy] ? 1 : -1
-      //   } else {
-      //     return a[sortBy] < b[sortBy] ? 1 : -1
-      //   }
-      // })
-      // 分頁處理 by GPT
-      .slice((page - 1) * itemsPerPage, page * itemsPerPage)
-      // .sort({ [sortBy]: sortOrder })
+      // 排序
+      .sort((a, b) => {
+        if (sortOrder === 'asc') {
+          return a[sortBy] > b[sortBy] ? 1 : -1
+        } else {
+          return a[sortBy] < b[sortBy] ? 1 : -1
+        }
+      })
 
-    // const data = await Song
-    //   // 查詢---------------------------------
-    //   // .find()為JS內建的陣列方法，()裡面放查詢條件
-    //   .find({
-    //     $or: [
-    //       // 演唱/演奏者符合regex
-    //       { singer: regex },
-    //       // 歌名符合regex
-    //       { songTitle: regex },
-    //       { songStyle: regex }
-    //     ]
-    //   })
-    //   // 排序----------------------------------
-    //   // 這裡的[]不是指陣列
-    //   // {[要排序的欄位]: 排序的順序（如asc、desc`、1、-1）}
-    //   .sort({ [sortBy]: sortOrder })
+    // 分頁處理
+    const paginatedSongs = filteredSongs.slice((page - 1) * itemsPerPage, (page - 1) * itemsPerPage + itemsPerPage)
 
-    //   // 分頁----------------------------------
-    //   // 如果一頁有 10 筆
-    //   // 第一頁 = 1 ~ 10 = 跳過 0 筆 = (第 1 頁 - 1) * 10 = 0
-    //   // 第二頁 = 11 ~ 20 = 跳過 10 筆 = (第 2 頁 - 1) * 10 = 10
-    //   // 第三頁 = 21 ~ 30 = 跳過 20 筆 = (第 3 頁 - 1) * 10 = 20
-    //   // .skip()和.limit() 是 MongoDB 的查詢方法
-    //   .skip((page - 1) * itemsPerPage) // 跳過幾筆
-    //   .limit(itemsPerPage) // 回傳幾筆
+    // 總筆數
+    const total = filteredSongs.length
 
-    // 總共幾筆資料----------------------------
-    // .estimatedDocumentCount()是monogoose內建的
-    const total = await Song.estimatedDocumentCount()
-
-    // console.log('data', data)
     res.status(StatusCodes.OK).json({
       success: true,
       message: '取得收藏匣成功-controller',
       result: [
-        // result.saving,
-        filteredSongs,
+        paginatedSongs,
         total
       ]
     })
   } catch (error) {
+    console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: '未知錯誤-controller-getSaving'

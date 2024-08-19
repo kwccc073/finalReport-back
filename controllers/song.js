@@ -38,6 +38,7 @@ export const create = async (req, res) => {
 }
 
 // 取得全部已公開的歌曲-------------------------------------------------------------
+// 網站顯示的數字不對（公開/非公開都會一起計算在內）***待編輯***
 export const getAll = async (req, res) => {
   try {
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
@@ -104,6 +105,7 @@ export const getAll = async (req, res) => {
 }
 
 // 得到自己的歌曲資料-----------------------------------------------------
+// 網站顯示的數字不對（公開/非公開、非本人都會一起計算在內）***待編輯***
 export const getMy = async (req, res) => {
   try {
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
