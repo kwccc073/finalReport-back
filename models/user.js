@@ -51,7 +51,7 @@ const schema = new Schema({
   // 大頭貼
   icon: {
     type: String,
-    default: ''
+    default: 'https://res.cloudinary.com/dg4rgrufq/image/upload/v1724293447/defaultIcon_rsqyu1.png'
   },
   tokens: {
     type: [String] // 文字陣列
