@@ -33,11 +33,11 @@ passport.use('login', new passportLocal.Strategy({
     if (error.message === 'ACCOUNT') {
       // done()為套件Passport裡的函式
       // 三個值分別表示沒有發生錯誤、表示沒有用戶資料、附加的訊息
-      return done(null, null, { message: '使用者帳號不存在-passport' })
+      return done(null, null, { message: '使用者帳號不存在' })
     } else if (error.message === 'PASSWORD') {
-      return done(null, null, { message: '使用者密碼錯誤-passport' })
+      return done(null, null, { message: '使用者密碼錯誤' })
     } else {
-      return done(null, null, { message: '未知錯誤-passport' })
+      return done(null, null, { message: '未知錯誤' })
     }
   }
 }))

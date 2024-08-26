@@ -14,7 +14,7 @@ export const create = async (req, res) => {
       // 操作是否成功
       success: true,
       // 額外的說明
-      message: '建立練鼓室成功-controller',
+      message: '建立練鼓室成功',
       // 是上面的變數= TrainingRoom.create(req.body)
       result
     })
@@ -85,7 +85,7 @@ export const getAll = async (req, res) => {
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找全部練鼓室-controller',
+      message: '尋找全部練鼓室',
       result: {
         data, total
       }
@@ -94,7 +94,7 @@ export const getAll = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller'
+      message: '未知錯誤'
     })
   }
 }
@@ -110,18 +110,18 @@ export const edit = async (req, res) => {
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '編輯練鼓室成功-controller'
+      message: '編輯練鼓室成功'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '練鼓室 ID 格式錯誤-controller'
+        message: '練鼓室 ID 格式錯誤'
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無練鼓室-controller'
+        message: '查無練鼓室'
       })
     } else if (error.name === 'ValidationError') { // 驗證錯誤
       // 先取出錯誤的第一個東西
@@ -135,44 +135,37 @@ export const edit = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
     }
   }
 }
 
-// 刪除練鼓室***待編輯***
+// 刪除練鼓室
 export const deleteTrainingRoom = async (req, res) => {
   try {
-    // 如果不是建立者if (req.query.user !== ???)
-    // req.query.user => 現在登入的使用者
-    // ??? => 歌曲的建立者
-    // const data = await Song.findById(req.params.id)  **待編輯**
-    // if (req.query.user !== data.name) throw new Error('EDITOR') **待編輯**
-
     if (!validator.isMongoId(req.params.id)) throw new Error('ID')
     // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
     // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
     // console.log(req.params.id)
     await TrainingRoom.findByIdAndDelete(req.params.id)
 
-    console.log('刪除練鼓室成功')
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '刪除練鼓室成功-controller'
+      message: '刪除練鼓室成功'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '練鼓室 ID 格式錯誤-controller',
+        message: '練鼓室 ID 格式錯誤',
         error: [error.path, error.reason]
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無練鼓室-controller'
+        message: '查無練鼓室'
       })
     } else if (error.name === 'ValidationError') { // 驗證錯誤
       // 先取出錯誤的第一個東西
@@ -186,7 +179,7 @@ export const deleteTrainingRoom = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
       console.log('Caught error:', error)
     }

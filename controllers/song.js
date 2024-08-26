@@ -15,7 +15,7 @@ export const create = async (req, res) => {
       // 操作是否成功
       success: true,
       // 額外的說明
-      message: '建立歌曲成功-controller',
+      message: '建立歌曲成功',
       // 是上面的變數= Song.create(req.body)
       result
     })
@@ -60,7 +60,6 @@ export const getAll = async (req, res) => {
       // .find()為JS內建的陣列方法，()裡面放查詢條件
       .find({
         isPublic: true, // 找出公開狀態的歌曲
-        // 搜尋欄用：先寫演唱/演奏者、歌名就好*****待編輯******
         $or: [
           // 演唱/演奏者符合regex
           { singer: regex },
@@ -85,12 +84,12 @@ export const getAll = async (req, res) => {
 
     // 總共幾筆資料----------------------------
     // .estimatedDocumentCount()是monogoose內建的
-    const total = await Song.estimatedDocumentCount()
+    const total = await data.length
 
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找全部歌曲-controller',
+      message: '尋找全部歌曲',
       result: {
         data, total
       }
@@ -99,7 +98,7 @@ export const getAll = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller'
+      message: '未知錯誤'
     })
   }
 }
@@ -153,12 +152,12 @@ export const getMy = async (req, res) => {
 
     // 總共幾筆資料----------------------------
     // .estimatedDocumentCount()是monogoose內建的
-    const total = await Song.estimatedDocumentCount()
+    const total = await data.length
 
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找自己的歌曲成功-controller',
+      message: '尋找自己的歌曲成功',
       result: {
         data, total
       }
@@ -167,7 +166,7 @@ export const getMy = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller'
+      message: '未知錯誤'
     })
   }
 }
@@ -181,24 +180,24 @@ export const getId = async (req, res) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '成功查單個歌曲-controller',
+      message: '成功查單個歌曲',
       result
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '歌曲 ID 格式錯誤-controller'
+        message: '歌曲 ID 格式錯誤'
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無歌曲-controller'
+        message: '查無歌曲'
       })
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
     }
   }
@@ -217,26 +216,25 @@ export const edit = async (req, res) => {
     if (!validator.isMongoId(req.params.id)) throw new Error('ID')
     // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
     // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
-    // console.log('完成if') // 這裡有顯示
     // console.log(req.params.id)
     await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
 
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '編輯歌曲成功-controller'
+      message: '編輯歌曲成功'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '歌曲 ID 格式錯誤-controller',
+        message: '歌曲 ID 格式錯誤',
         error: [error.path, error.reason]
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無歌曲-controller'
+        message: '查無歌曲'
       })
     } else if (error.name === 'ValidationError') { // 驗證錯誤
       // 先取出錯誤的第一個東西
@@ -250,7 +248,7 @@ export const edit = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
       console.log('Caught error:', error)
     }
@@ -272,23 +270,22 @@ export const deleteSong = async (req, res) => {
     // console.log(req.params.id)
     await Song.findByIdAndDelete(req.params.id)
 
-    console.log('刪除成功') // 這裡沒有顯示，所以是上面這行沒有過
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '刪除歌曲成功-controller'
+      message: '刪除歌曲成功'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '歌曲 ID 格式錯誤-controller',
+        message: '歌曲 ID 格式錯誤',
         error: [error.path, error.reason]
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無歌曲-controller'
+        message: '查無歌曲'
       })
     } else if (error.name === 'ValidationError') { // 驗證錯誤
       // 先取出錯誤的第一個東西
@@ -302,7 +299,7 @@ export const deleteSong = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
       console.log('Caught error:', error)
     }
@@ -344,7 +341,7 @@ export const getNew = async (req, res) => {
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找全部歌曲-controller',
+      message: '尋找全部歌曲',
       result: {
         data, total
       }
@@ -353,7 +350,7 @@ export const getNew = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller'
+      message: '未知錯誤'
     })
   }
 }
@@ -393,7 +390,7 @@ export const getPopular = async (req, res) => {
     // 回傳狀態碼------------------------------
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '尋找收藏最多的歌曲-controller',
+      message: '尋找收藏最多的歌曲',
       result: {
         data, total
       }
@@ -402,7 +399,7 @@ export const getPopular = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller'
+      message: '未知錯誤'
     })
   }
 }

@@ -10,46 +10,46 @@ const schema = new Schema({
   // 縣市
   city: {
     type: String,
-    required: [true, '縣市必填-model'],
+    required: [true, '縣市必填'],
     enum: {
       values: cities,
-      message: '錯誤，查無縣市-model'
+      message: '錯誤，查無縣市'
     }
   },
   // 地區
   district: {
     type: String,
-    required: [true, '地區必填-model']
+    required: [true, '地區必填']
   },
   // 地址
   address: {
     type: String,
-    required: [true, '地址必填-model']
+    required: [true, '地址必填']
   },
   // 名稱
   trainingRoomName: {
     type: String,
-    required: [true, '名稱必填-model']
+    required: [true, '名稱必填']
   },
   // 連絡電話
   phoneNumber: {
     type: String,
-    required: [true, '連絡電話必填-model'],
-    match: [phoneNumberRegex, '連絡電話格式不正確-model']
+    required: [true, '連絡電話必填'],
+    match: [phoneNumberRegex, '連絡電話格式不正確']
   },
   // 預約方式
   reservation: {
     type: String,
-    required: [true, '預約必填-model'],
+    required: [true, '預約必填'],
     enum: {
       values: reservations,
-      message: '錯誤，查無預約方式-model'
+      message: '錯誤，查無預約方式'
     }
   },
   // 費用
   fee: {
     type: Number,
-    required: [true, '費用必填-model'],
+    required: [true, '費用必填'],
     default: 0 // 預設為 0
   }
 }, {

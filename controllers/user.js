@@ -10,7 +10,7 @@ export const create = async (req, res) => {
     await User.create(req.body)
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '註冊成功-controller'
+      message: '註冊成功'
     })
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -44,7 +44,7 @@ export const login = async (req, res) => {
     await req.user.save()
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '登入成功-controller',
+      message: '登入成功',
       result: {
         token,
         account: req.user.account // 帳號
@@ -120,7 +120,7 @@ export const logout = async (req, res) => {
     await req.user.save() // 保存
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '登出成功-controller'
+      message: '登出成功'
     })
   } catch (error) {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -145,18 +145,18 @@ export const edit = async (req, res) => {
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '編輯個人資料成功-controller'
+      message: '編輯個人資料成功'
     })
   } catch (error) {
     if (error.name === 'CastError' || error.message === 'ID') {
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
-        message: '個人資料 ID 格式錯誤-controller-edit '
+        message: '個人資料 ID 格式錯誤-edit '
       })
     } else if (error.message === 'NOT FOUND') {
       res.status(StatusCodes.NOT_FOUND).json({
         success: false,
-        message: '查無個人資料-controller'
+        message: '查無個人資料'
       })
     } else if (error.name === 'ValidationError') { // 驗證錯誤
       // 先取出錯誤的第一個東西
@@ -170,7 +170,7 @@ export const edit = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller'
+        message: '未知錯誤'
       })
     }
   }
@@ -218,7 +218,7 @@ export const editSaving = async (req, res) => {
     await req.user.save() // 保存使用者資料
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '編輯收藏匣成功-controller',
+      message: '編輯收藏匣成功',
       result: req.user.saving,
       isSaving: isSaving
     })
@@ -249,7 +249,7 @@ export const editSaving = async (req, res) => {
     } else {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: '未知錯誤-controller-editSaving'
+        message: '未知錯誤-editSaving'
       })
     }
   }
@@ -269,7 +269,7 @@ export const getSaving = async (req, res) => {
       })
     }
 
-    console.log(result.saving) // 收藏的歌曲之完整資訊
+    // console.log(result.saving) // 收藏的歌曲之完整資訊
 
     // sortBy、sortOrder、itemsPerPage、page、search是前端送過來的
     // || 表示如果有前面的值則帶入前面的值
@@ -311,7 +311,7 @@ export const getSaving = async (req, res) => {
 
     res.status(StatusCodes.OK).json({
       success: true,
-      message: '取得收藏匣成功-controller',
+      message: '取得收藏匣成功',
       result: [
         paginatedSongs,
         total
@@ -321,7 +321,7 @@ export const getSaving = async (req, res) => {
     console.log(error)
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       success: false,
-      message: '未知錯誤-controller-getSaving'
+      message: '未知錯誤-getSaving'
     })
   }
 }

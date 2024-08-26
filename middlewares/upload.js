@@ -28,9 +28,9 @@ export default (req, res, next) => {
   // 只傳一個圖片
   upload.single('icon')(req, res, error => {
     if (error instanceof multer.MulterError) {
-      let message = '上傳錯誤-upload.js'
+      let message = '上傳錯誤'
       if (error.code === 'LIMIT_FILE_SIZE') {
-        message = '檔案太大-upload.js'
+        message = '檔案太大'
       }
       res.status(StatusCodes.BAD_REQUEST).json({
         success: false,
@@ -40,12 +40,12 @@ export default (req, res, next) => {
       if (error.message === 'FORMAT') {
         res.status(StatusCodes.BAD_REQUEST).json({
           success: false,
-          message: '檔案格式錯誤-upload.js'
+          message: '檔案格式錯誤'
         })
       } else {
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
           success: false,
-          message: '未知錯誤-upload.js'
+          message: '未知錯誤'
         })
       }
     } else {
