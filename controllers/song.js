@@ -217,7 +217,8 @@ export const edit = async (req, res) => {
     // .findByIdAndUpdate() 是 Mongoose 提供的一個方法，用於查找 MongoDB 集合中的文檔並根據其 _id 進行更新。
     // 找到req.params.id，換成req.body，必須先執行驗證，.orFail()是如果失敗的話要執行的東西
     // console.log(req.params.id)
-    await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true }).orFail(new Error('NOT FOUND'))
+    await Song.findByIdAndUpdate(req.params.id, req.body, { runValidators: true })
+      .orFail(new Error('NOT FOUND'))
 
     // 回應狀態碼
     res.status(StatusCodes.OK).json({
